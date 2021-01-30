@@ -1,4 +1,4 @@
-# Rui Wang, 2020/11/13
+# Rui Wang (2020-11-13)
 
 # Paper information
 - Title: Flipping bits in memory without accessing them: An experimental study of DRAM disturbance errors

@@ -1,4 +1,4 @@
-# Rui Wang, 2020/11/10
+# Rui Wang (2020-11-10)
 
 # Paper information
 - Title: JumpSwitches: Restoring the Performance of Indirect Branches In the Era of Spectre
