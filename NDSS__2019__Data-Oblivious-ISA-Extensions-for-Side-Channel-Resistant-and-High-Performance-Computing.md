@@ -28,11 +28,10 @@ However, today's microarchitectures lead to the insecurity and performance chall
 
 This paper proposes a **Data Oblivious ISA Extension** to overcome the challenges above. 
 
-### Data Oblivious Instruction Set Architectures  extension (OISA):
-
+### Data Oblivious Instruction Set Architectures extension (OISA):
 The basic idea of OISA is to divide data and instructions into two parts respectively, public and confidential, safe and unsafe. Only safe instructions can do operations on confidential data. Otherwise, it throws an exception. Both safe and unsafe instructions work on public data without any limitation. 
 
-This paper implements the OISA design on RISC-BOOM (Berkery out of order execution). 
+This paper implements the OISA design on RISC-BOOM (Berkeley Out-of-Order Machine). 
 
 * Each data with a size of one word has one label bit which is stored alongside the data, to specify whether the data is secret or not. The labels will be determined by two special instructions *oseal* (mark data as confidential) and *ounseal* (mark data as public) and be propagated when oblivious instructions are executed. These instructions should not be executed speculatively for the sake of preventing malicious attacks.
 
@@ -41,19 +40,14 @@ This paper implements the OISA design on RISC-BOOM (Berkery out of order executi
 
 Since the datapaths for the majority of instructions are already completed, the main work is to add the extension ones. *oseal* and *onunseal* reuse serializing instructions in RISC-BOOM and design one ALU for *cmov* instruction. For OMP, they isolate one region of the L1 cache which can be used as normal memory if no oblivious object is allocated. Finally, there is also a hardware component called a label station to operate on labels as the rules mentioned before.
 
-### Evaluation:
-They implement their design prototype written in the Chisel hardware description language and also simulate it by the software named Multi2Sim. The area overhead is about 6.80% for logic and 1.84% for SRAM and 4.25% in total. Compared with OISA, OISA_OMP has 8.8×/1.7× speed up and 3.2×/40.4× slowdown for small/large data sizes.
-
 ## Strengths
 The idea that solving the security and performance problems of oblivious code at the ISA level is novel.
  The proof of security analysis is based on a mathematical framework.
+
 ## Weaknesses
 The labels for data will incur the performance overheads for storage.
-## Paper presentation
-
 
 ## Thoughts
 1. In the implementation of this paper, they use one extra bit for each word data to specify the label. Usually, oblivious code is a small part of our program and confidential data is far less than public ones. Maybe we can set an extra mode for the CPU and only on this mode, it runs OISA. Or we could make a blacklist for the confidential data, so there is no waste on labeling public data.
-
-3.  The label station is in the CPU, but it doesn't use already completed datapaths in RISC-BOOM. Therefore, it increases the area overheads. Maybe we can move it to the memory side, and every read/write request also sends the operands label (safe or unsafe). 
-4. As mentioned in the paper, there are two ways to enhance the performance. One is to increase the OMP size and the other is to add more safe oblivious instructions.
+2.  The label station is in the CPU, but it doesn't use already completed datapaths in RISC-BOOM. Therefore, it increases the area overheads. Maybe we can move it to the memory side, and every read/write request also sends the operands label (safe or unsafe). 
+3. As mentioned in the paper, there are two ways to enhance the performance. One is to increase the OMP size and the other is to add more safe oblivious instructions.
