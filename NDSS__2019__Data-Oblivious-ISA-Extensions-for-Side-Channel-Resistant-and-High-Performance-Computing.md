@@ -33,21 +33,32 @@ The basic idea of OISA is to divide data and instructions into two parts respect
 
 This paper implements the OISA design on RISC-BOOM (Berkeley Out-of-Order Machine). 
 
-* Each data with a size of one word has one label bit which is stored alongside the data, to specify whether the data is secret or not. The labels will be determined by two special instructions *oseal* (mark data as confidential) and *ounseal* (mark data as public) and be propagated when oblivious instructions are executed. These instructions should not be executed speculatively for the sake of preventing malicious attacks.
+* Each data with a size of one word (64 bits in BOOM) has one label bit to specify whether the data is secret or not. The labels will be stored alongside the data and treated as an extra bit in the word, so now a word is 65-bit in all memory hierarchy. Labels could be determined by two special instructions *oseal* (mark data as confidential) and *ounseal* (mark data as public) and be propagated when oblivious instructions are executed. These instructions should not be executed speculatively for the sake of preventing malicious attacks. 
 
-* The arithmetic operands, random number generation, and *cmove-style* (conditional move) instructions are considered safe, while the branch, jump, load/store operations are considered unsafe.
+* The arithmetic operands, random number generation, and *cmove-style* (conditional move) instructions are considered safe, while the branch, jump, load/store operations are considered unsafe. *cmove* instead of branch is always applied in data oblivious code. For example, a if branch 
+```
+(secret) ? (x = array1(A)) : (x = array2(B))
+```
+might have different execution traces and then leak some information of secret. We can write it as  
+```
+z, y = array1(A), array2(B)
+(secret) ? (x = z) : (x = y)
+```
+to access both sides of branches, and use *cmove* to transfer the right result finally.
+
 * To implement safe address operands, they invent *oblivious memory extension*, which contains safe load/store instructions and *CPUID* for accessing *oblivious memory partition size* (OSZ). The hardware designer ought to provide an oblivious memory partition for *ocld/ocst* (oblivious confidential load/store) to load or store confidential data in this storage. OSZ differs in different machines. We need program-level functions to make data oblivious code portable. If the size of the confidential object doesn't exceed the remaining capability of oblivious memory partition (OMP), just simply allocate memory. Otherwise, set the memory type as ORAM (oblivious RAM) or SCAN. The former one applies the ZeroTrace technique (NDSS'18) which has better performance while the latter one just uses normal memory to emulate the data oblivious one and reading the object by scanning its memory.  Additionally, they modify OS-interface about the exception handler, context switching, and the system calls.
 
-Since the datapaths for the majority of instructions are already completed, the main work is to add the extension ones. *oseal* and *onunseal* reuse serializing instructions in RISC-BOOM and design one ALU for *cmov* instruction. For OMP, they isolate one region of the L1 cache which can be used as normal memory if no oblivious object is allocated. Finally, there is also a hardware component called a label station to operate on labels as the rules mentioned before.
+Since the designs of datapaths for the majority of instructions are already completed in RISC-V, the main work is to add the extension ones. *oseal* and *onunseal* reuse serializing instructions in RISC-BOOM and design one ALU for *cmov* instruction. For OMP, they isolate one region of the L1 cache which can be used as normal memory if no oblivious object is allocated. Finally, there is also a hardware component called a label station to operate on labels as the rules mentioned before.
 
 ## Strengths
-The idea that solving the security and performance problems of oblivious code at the ISA level is novel.
- The proof of security analysis is based on a mathematical framework.
+1. The idea that solving the security and performance problems of oblivious code at the ISA level is novel.
+2. The proof of security analysis is based on a mathematical framework.
 
 ## Weaknesses
 The labels for data will incur the performance overheads for storage.
 
 ## Thoughts
 1. In the implementation of this paper, they use one extra bit for each word data to specify the label. Usually, oblivious code is a small part of our program and confidential data is far less than public ones. Maybe we can set an extra mode for the CPU and only on this mode, it runs OISA. Or we could make a blacklist for the confidential data, so there is no waste on labeling public data.
-2.  The label station is in the CPU, but it doesn't use already completed datapaths in RISC-BOOM. Therefore, it increases the area overheads. Maybe we can move it to the memory side, and every read/write request also sends the operands label (safe or unsafe). 
-3. As mentioned in the paper, there are two ways to enhance the performance. One is to increase the OMP size and the other is to add more safe oblivious instructions.
+2. The label is treated as an extra bit of a word. The wider words change a lot in nowadays storage. Maybe we can take advantage of padding bit in some data structures.
+3. The label station is in the CPU, but it doesn't use already completed datapaths in RISC-BOOM. Therefore, it increases the area overheads. Maybe we can move it to the memory side, and every read/write request also sends the operands label (safe or unsafe). 
+4. As mentioned in the paper, there are two ways to enhance the performance. One is to increase the OMP size and the other is to add more safe oblivious instructions.
