@@ -9,37 +9,28 @@
 # Paper content
 
 ## Summary
-### Motivation
-All cache replacement policies can be categorized into two parts, PC-based (program counter-based) policy, and non-PC-based policy. With the knowledge of PC, the policy could easily capture the access patterns, leading to better performance than non-PC-based ones like LRU. However, the processor manufacturers never apply a PC-based policy on the real chips, because it is hard to implement the PC-based on the hardware level. The paper aims to design a cache replacement policy without using PC, which can also reach high performance.
 
-### Learning from reinforcement learning-based simulation:
-RL (reinforcement learning) is a machine learning paradigm in which an agent tries to navigate through an environment by choosing an action from a set of allowed actions. (R. Sutton and A. Barto, Reinforcement Learning. MIT Press, 1998) In the paper, they use RL-based simulation to learn which features of access, set and cache line play an essential role in the cache replacement policy. 
+The performance of the caches depends on its cache replacement policy, the algorithm determining which cache line to be evicted when there is no spare space to insert a new one. All cache replacement policies can be categorized into two parts, PC-based (program counter-based) policy, and non-PC-based policy. With the knowledge of PC, the policy could easily capture the access patterns, leading to better performance than non-PC-based ones like LRU. However, the processor manufacturers never apply a PC-based policy on the real chips, because the expense to design, implement and verify the pipe for PC is unacceptable. The paper takes advantage of the reinforcement learning technique, to find out the key features in replacements and then design one algorithm call RLR (reinforcement learning replacements) based on these features.
 
-The results show that those features share high weights:
-1. Preuse Distance:
+This paper applies reinforcement learning on replacements, to study the factors related to the optimal replacement algorithm. In the model, some information of the access, cache set, and cache line is chosen and encoded as the input. Then a neural network as the agent will consume these inputs and make the decision on the eviction. The agent tends to evict the cache line with the longest reuse distance in the cache set by plenty of training episodes. The result shows that the following features play critical role in replacements.
+1. Preuse distance:
     - Set accesses since last access to the accessed address. (It is difficult to record all accessed address in practical, so this feature would be neglected in the following discussion)
-    - Set accesses between last two accesses to the cache line.
-2. Line Last Access Type: Type of last access to the cache line (LD, RFO, PR, WB).
-3. Line Hits Since Insertion: Number of hits to cache line since its insertion.
-4. Recency: Number of hits to cache line since its insertion.
+    - Set accesses between the last two accesses to the cache line. (Experiments reveal that this feature is approximate to history reuse distance)
+2. Line last access type: The type of last access to the cache line (Load, Read For Ownership, Prefetch, Writeback).
+3. Line hits since insertion: The number of hits to cache line since its insertion.
+4. Recency: Order of cache line access with respect to other cache lines in the set.
 
-Then the paper proposes their RLR (Reinforcement Learned Replacement) based on their observations above.
-
-### RLR rules
-1. For a significant number of cache lines, the reuse distance can be approximated by preuse distance.
-2. The type of previous access of a cache line can be used to predict its chance of receiving a hit.
-3. Cache lines that have been accessed can be predicted to be accessed again in the future.
-4. Recently-inserted cache lines are prioritized for eviction to allow older cache lines to be reused.
+A priority-based algorithm called RLR based on their observations from the aforementioned features is proposed. This block with the highest priority in their block will be evicted and other blocks with lower priority will be retained. The priority value consists of three parts, its type priority, its hit priority, and its reuse distance priority. If the last access to the line is a prefetch instruction, the type priority will be set to 1; otherwise will be 0. If the cache is not hit since its insertion, the hit priority will be set to 1; otherwise will be 0. If the reuse distance is more than double the average reuse distance in the cache set, the reuse distance priority will be set to 8, because the feature is the key in the observations, otherwise, it will be 0. Finally, the recency is used to break the tie. The old blocks are more likely to be retained compared with the new ones in RLR.
 
 ## Strengths
-1. The algorithm is non-PC-based, has acceptable area overhead, and relies on easy combination logics.
+1. The algorithm is non-PC-based, has acceptable area overhead, and relies on easy combination logic.
 
 ## Weaknesses
-1. This paper uses a neural network to study the cache replacement policy's key feature, and get each weight of them. However, the authors use them straightforwardly without explaining why these features are important. 
-2. The features might have some internal relationship with each other which the MLP (multi-layer perceptron) too simple to reveal. 
-3. The simulation works on a 16-way 2MB LLC cache and supposes L1 and L2 cache use LRU. What about L1 ICache and DCache and L2 Cache? What about other sizes and associativity? What if L1 and L2 take advantage of other replacement policies?
+1. This paper uses a neural network to study the cache replacement policy's key features, and get each weight of them. However, the authors can not explain why these features are important clearly. 
+2. The features might have some internal relationship with each other which the MLP (multi-layer perceptron) is too simple to reveal. This paper doesn't tell the reader how they encode these input features. In other words, the model is too coarse and unclear. 
+3. The simulation works on a 16-way 2MB LLC cache and supposes L1 and L2 cache use LRU. What about L1 ICache and DCache and L2 Cache? What about other sizes and associativity? What if L1 and L2 take advantage of other replacement policies? (On 8-way 32KB L1 cache, their RLR is not so good).
 
 ## Thoughts
 1. Regardless of weakness1, it is still worth a try to apply the method on the page cache of the file system. This method refers to using RL to learn key features and designing a new replacement policy based on the features.
-2. PCA (Principal component analysis) might solve the weakness2. This technique is commonly used for dimensionality reduction by projecting each data point onto only the first few principal components to obtain lower-dimensional data while preserving as much of the data's variation as possible. (wikipedia)
-3. As for weakness 3, many experiments are needed. If the size, associativity, and so on don't affect the result significantly, it is good. Otherwise, these features should also be considered in the RL framework. 
+2. PCA (Principal component analysis) might solve the weakness2. This technique is commonly used for dimensionality reduction by projecting each data point onto only the first few principal components to obtain lower-dimensional data while preserving as much of the data's variation as possible. (Wikipedia)
+3. As for weakness 3, many experiments are needed. If the size, associativity, and so on don't affect the result significantly, it is good. Otherwise, these features should also be considered in the RL framework. Also, the RLR should be adjusted according to the new observations.
