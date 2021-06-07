@@ -30,5 +30,5 @@ The algorithm is non-PC-based, has acceptable area overhead, and relies on easy 
 
 ## Thoughts
 1. Regardless of the first weakness, it is still worth a try to apply the method on the page cache of the file system. This method refers to using RL to learn key features and designing a new replacement policy based on the features.
-2. PCA (Principal component analysis) might solve the second weakness. This technique is commonly used for dimensionality reduction by projecting each data point onto only the first few principal components to obtain lower-dimensional data while preserving as much of the data's variation as possible (cited from Wikipedia). 
+2. PCA (Principal component analysis) might solve the second weakness. This technique is commonly used for dimensionality reduction by projecting each data point onto only the first few principal components to obtain lower-dimensional data while preserving as much of the data's variation as possible (cited from Wikipedia).
 3. As for the last weakness, many experiments are needed. If the size, associativity, and so on don't affect the result significantly, it is good. Otherwise, these features should also be considered in the RL framework. Also, the RLR should be adjusted according to the new observations.
