@@ -15,7 +15,7 @@ The miss rate of the caches depends on its cache replacement policy, the algorit
 This paper applies reinforcement learning on replacements, to study the factors related to the optimal replacement algorithm. Reinforcement learning is a machine learning techinque that one agent tries to take optimal actions in the enviroment and learns from the awards that the action brings. In the model, some information of the access, cache set, and cache line is chosen and encoded as the input. Then a neural network as the agent will consume these inputs and make the decision on the eviction. The agent tends to evict the cache line with the longest reuse distance in the cache set by plenty of training episodes. The result shows that the following features play critical role in replacements.
 1. Preuse distance:
   - Set accesses since last access to the accessed address. (It is difficult to record all accessed address in practical, so this feature would be neglected in the following discussion)
-  - Set accesses between the last two accesses to the cache line. (Experiments reveal that this feature is approximate to history reuse distance)
+  - Set accesses between the last two accesses to the cache line. (Experiments reveal that this feature is approximate to the reuse distance)
 2. Line last access type: The type of last access to the cache line (Load, Read For Ownership, Prefetch, Writeback).
 3. Line hits since insertion: The number of hits to cache line since its insertion.
 4. Recency: Order of cache line access with respect to other cache lines in the set.
