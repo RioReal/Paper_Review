@@ -24,11 +24,10 @@ A priority-based algorithm called RLR based on their observations from the afore
 The algorithm is non-PC-based, has acceptable area overhead, and relies on easy combinational logic and sequential logic.
 
 ## Weaknesses
-1. This paper uses a neural network to study the cache replacement policy's key features, and get each weight of them. However, the authors can not explain why these features are important clearly.
-2. The features might have some internal relationship with each other which the MLP (multi-layer perceptron) is too simple to reveal. This paper doesn't tell the reader how they encode these input features. In other words, the model is too coarse and unclear.
-3. The simulation works on a 16-way 2MB LLC cache and supposes L1 and L2 cache use LRU. What about L1 ICache and DCache and L2 Cache? What about other sizes and associativity? What if L1 and L2 take advantage of other replacement policies? (On 8-way 32KB L1 cache, their RLR is not so good).
+1. The features might have some internal relationship with each other which the MLP (multi-layer perceptron) is too simple to reveal. This paper doesn't tell the reader how they encode these input features. In other words, the model is too coarse and unclear.
+2. The simulation works on a 16-way 2MB LLC cache and supposes L1 and L2 cache use LRU. What about L1 ICache and DCache and L2 Cache? What about other sizes and associativity? What if L1 and L2 take advantage of other replacement policies? (On 8-way 32KB L1 cache, their RLR is not so good).
 
 ## Thoughts
-1. Regardless of the first weakness, it is still worth a try to apply the method on the page cache of the file system. This method refers to using RL to learn key features and designing a new replacement policy based on the features.
-2. PCA (Principal component analysis) might solve the second weakness. This technique is commonly used for dimensionality reduction by projecting each data point onto only the first few principal components to obtain lower-dimensional data while preserving as much of the data's variation as possible (cited from Wikipedia).
-3. As for the last weakness, many experiments are needed. If the size, associativity, and so on don't affect the result significantly, it is good. Otherwise, these features should also be considered in the RL framework. Also, the RLR should be adjusted according to the new observations.
+1. Regardless of the weakness that neural network is a black box, it is worth a try to apply the method on the page cache of the file system. This method refers to using RL to learn key features and designing a new replacement policy based on the features.
+2. PCA (Principal component analysis) might solve the first weakness. This technique is commonly used for dimensionality reduction by projecting each data point onto only the first few principal components to obtain lower-dimensional data while preserving as much of the data's variation as possible (cited from Wikipedia).
+3. As for the second weakness, many experiments are needed. If the size, associativity, and so on don't affect the result significantly, it is good. Otherwise, these features should also be considered in the RL framework. Also, the RLR should be adjusted according to the new observations.
