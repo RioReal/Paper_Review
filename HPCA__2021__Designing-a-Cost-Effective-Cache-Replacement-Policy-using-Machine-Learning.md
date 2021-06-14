@@ -20,7 +20,7 @@ This paper applies reinforcement learning on replacements, to study the factors 
 
 A priority-based algorithm called RLR based on their observations from the aforementioned features is proposed. This block with the highest priority in their block will be evicted and other blocks with lower priority will be retained. The priority value consists of three parts, its type priority, its hit priority, and its reuse distance priority. If the last access to the line is a prefetch instruction, the type priority will be set to 1; otherwise will be 0. If the cache is not hit since its insertion, the hit priority will be set to 1; otherwise will be 0. If the reuse distance is more than double the average reuse distance in the cache set, the reuse distance priority will be set to 8, because the feature is the key in the observations, otherwise, it will be 0. All the weights are decided by the hill-climbing method on the same workload of the RL part. Finally, the recency is used to break the tie. The old blocks are more likely to be retained compared with the new ones in RLR.
 
-## Strength
+## Strengths
 The algorithm is non-PC-based, has acceptable area overhead, and relies on easy combinational logic and sequential logic.
 
 ## Weaknesses
