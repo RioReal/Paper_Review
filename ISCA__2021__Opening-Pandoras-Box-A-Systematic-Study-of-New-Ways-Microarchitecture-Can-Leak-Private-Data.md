@@ -1,7 +1,7 @@
 # Rui Wang (2021-6-24)
 
 # Paper information
-- Title: Opening Pandora’s Box: A Systematic Study of New Ways Microarchitecture Can Leak Private Data
+- Title: Opening Pandora's Box: A Systematic Study of New Ways Microarchitecture Can Leak Private Data
 - Authors: Jose Rodrigo Sanchez Vicarte, Pradyumna Shome, Nandeeka Nayak, Caroline Trippely, Adam Morrisonz, David Kohlbrennerx, Christopher W. Fletcher
 - Venue: ISCA 2021
 - Keywords: side-channel attack, microarchitecture
