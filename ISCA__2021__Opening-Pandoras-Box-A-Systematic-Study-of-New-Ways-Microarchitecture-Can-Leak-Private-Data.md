@@ -27,7 +27,7 @@ At the end of the paper, they provide proof-of-concept attacks on silent stores 
 With MLDs, we can quickly analyze the potential security implications of the optimizations.
 
 ## Weaknesses
-It remains to be seen whether some combinations of those optimizations results in more complex but covert security implications, for there are often several optimizations applied in one processors.
+It remains to be seen whether some combinations of those optimizations results in more complex but covert security implications, for there are often several optimizations applied in one processors. The MLDs only focus on one specific optimization.
 
 ## Thoughts
 1. Optimizations will treat different inputs in different ways. We call this feature data-dependent. The time or the energy consumption might be a function of the inputs, which means that any optimization might leak data potentially. It is useless if we just focus on how to create safe hardware optimization components. We need to consider this question in the bigger picture.
